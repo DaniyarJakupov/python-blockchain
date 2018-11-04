@@ -1,14 +1,14 @@
-# Initializing our (empty) blockchain list
+# Initializing blockchain list
+blockchain = []  # list of blocks
 genesis_block = {
     'previous_hash': '',
     'index': 0,
     'transactions': []
 }
-
-blockchain = []  # list of block dictionaries {}
 blockchain.append(genesis_block)
-open_transactions = []
+open_transactions = []  # list of open transactions
 owner = 'Dan'
+participants = {'Dan'}  # set of participants (only unique values)
 
 
 def hash_block(block):
@@ -35,6 +35,8 @@ def add_transaction(recipient, amount=1.0, sender=owner):
         "amount": amount
     }
     open_transactions.append(transaction)
+    participants.add(sender)
+    participants.add(recipient)
 
 
 def mine_block():
@@ -83,11 +85,13 @@ def verify_chain():
 
 while True:
     print('Please choose')
-    print('1: Add a new transaction value')
+    print('1: Add a new transaction')
     print('2: Mine new block')
-    print('3: Output the blockchain blocks')
+    print('3: Show blockchain')
+    print('4: Show participants')
     print('h: Manipulate the chain')
     print('q: Quit')
+    print('==================================')
     user_choice = get_user_choice()
     if user_choice == '1':
         tx_data = get_transaction_value()  # returns a tuple
@@ -98,6 +102,8 @@ while True:
         mine_block()
     elif user_choice == '3':
         print_blockchain_elements()
+    elif user_choice == '4':
+        print(participants)
     elif user_choice == 'h':
         if len(blockchain) >= 1:
             blockchain[0] = {
