@@ -17,21 +17,24 @@ def hash_block(block):
 
 
 def get_balance(participant):
-    # get the list with amount of coins sent from each block where participant == sender
+    # get the list with amount of coins sent
     tx_sender = [[tx['amount'] for tx in block['transactions'] if participant == tx['sender']]
                  for block in blockchain]
-    # get the list with amount of coins recieved from each block where participant == recipient
-    tx_recipient = [[tx['amount'] for tx in block['transactions'] if participant == tx['recipient']]
-                    for block in blockchain]
-
+    open_tx_sender = [tx['amount']
+                      for tx in open_transactions if tx['sender'] == participant]
+    tx_sender.append(open_tx_sender)
     amount_sent = 0
-    amount_recieved = 0
     for tx in tx_sender:
         if len(tx) > 0:
             amount_sent += tx[0]
+    # get the list with amount of coins recieved
+    tx_recipient = [[tx['amount'] for tx in block['transactions'] if participant == tx['recipient']]
+                    for block in blockchain]
+    amount_recieved = 0
     for tx in tx_recipient:
         if len(tx) > 0:
             amount_recieved += tx[0]
+
     balance = amount_recieved - amount_sent
     return (amount_sent, amount_recieved, balance)
 
@@ -55,9 +58,17 @@ def add_transaction(recipient, amount=1.0, sender=owner):
         "recipient": recipient,
         "amount": amount
     }
-    open_transactions.append(transaction)
-    participants.add(sender)
-    participants.add(recipient)
+    if verify_tx(transaction):
+        open_transactions.append(transaction)
+        participants.add(sender)
+        participants.add(recipient)
+        return True
+    return False
+
+
+def verify_tx(transaction):
+    (_, _, sender_balance) = get_balance(transaction['sender'])
+    return sender_balance >= transaction['amount']
 
 
 def mine_block():
@@ -112,21 +123,25 @@ def verify_chain():
 
 
 while True:
+    print('==================================')
     print('Please choose')
     print('1: Add a new transaction')
     print('2: Mine new block')
     print('3: Show blockchain')
     print('4: Show participants')
     print('5: Show balance')
+    print('6: Show open transactions')
     print('h: Manipulate the chain')
     print('q: Quit')
-    print('==================================')
+
     user_choice = get_user_choice()
     if user_choice == '1':
         tx_data = get_transaction_value()  # returns a tuple
         recipient, amount = tx_data
-        add_transaction(recipient, amount=amount)
-        print(open_transactions)
+        if add_transaction(recipient, amount=amount):
+            print('Added transaction!')
+        else:
+            print('Transaction failed!')
     elif user_choice == '2':
         if mine_block():
             open_transactions = []
@@ -139,6 +154,8 @@ while True:
         print('Amount sent: ' + str(amount_sent))
         print('Amount recieved: ' + str(amount_recieved))
         print('Balance: ' + str(balance))
+    elif user_choice == '6':
+        print(open_transactions)
     elif user_choice == 'h':
         if len(blockchain) >= 1:
             blockchain[0] = {
