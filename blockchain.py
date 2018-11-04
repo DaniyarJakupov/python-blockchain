@@ -9,10 +9,31 @@ blockchain.append(genesis_block)
 open_transactions = []  # list of open transactions
 owner = 'Dan'
 participants = {'Dan'}  # set of participants (only unique values)
+MINIGN_REWARD = 10
 
 
 def hash_block(block):
-    return '-'.join([str(block[key]) for key in block])
+    return '-'.join([str(block[key]) for key in block])  # list comprehension
+
+
+def get_balance(participant):
+    # get the list with amount of coins sent from each block where participant == sender
+    tx_sender = [[tx['amount'] for tx in block['transactions'] if participant == tx['sender']]
+                 for block in blockchain]
+    # get the list with amount of coins recieved from each block where participant == recipient
+    tx_recipient = [[tx['amount'] for tx in block['transactions'] if participant == tx['recipient']]
+                    for block in blockchain]
+
+    amount_sent = 0
+    amount_recieved = 0
+    for tx in tx_sender:
+        if len(tx) > 0:
+            amount_sent += tx[0]
+    for tx in tx_recipient:
+        if len(tx) > 0:
+            amount_recieved += tx[0]
+    balance = amount_recieved - amount_sent
+    return (amount_sent, amount_recieved, balance)
 
 
 def get_last_blockchain_value():
@@ -51,6 +72,13 @@ def mine_block():
         'transactions': open_transactions
     }
     blockchain.append(block)
+    reward_tx = {
+        'sender': "MINING",
+        'recipient': owner,
+        'amount': MINIGN_REWARD
+    }
+    open_transactions.append(reward_tx)
+    return True
 
 
 def get_transaction_value():
@@ -89,6 +117,7 @@ while True:
     print('2: Mine new block')
     print('3: Show blockchain')
     print('4: Show participants')
+    print('5: Show balance')
     print('h: Manipulate the chain')
     print('q: Quit')
     print('==================================')
@@ -99,11 +128,17 @@ while True:
         add_transaction(recipient, amount=amount)
         print(open_transactions)
     elif user_choice == '2':
-        mine_block()
+        if mine_block():
+            open_transactions = []
     elif user_choice == '3':
         print_blockchain_elements()
     elif user_choice == '4':
         print(participants)
+    elif user_choice == '5':
+        (amount_sent, amount_recieved, balance) = get_balance(owner)
+        print('Amount sent: ' + str(amount_sent))
+        print('Amount recieved: ' + str(amount_recieved))
+        print('Balance: ' + str(balance))
     elif user_choice == 'h':
         if len(blockchain) >= 1:
             blockchain[0] = {
