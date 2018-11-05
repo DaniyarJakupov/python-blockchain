@@ -77,12 +77,6 @@ def mine_block():
     # and create a new list w/ values from lsat_block dict
     # then convert it to string
     hashed_block = hash_block(last_block)
-    block = {
-        'previous_hash': hashed_block,
-        'index': len(blockchain),
-        'transactions': open_transactions
-    }
-
     reward_tx = {
         'sender': "MINING",
         'recipient': owner,
@@ -91,6 +85,11 @@ def mine_block():
     copied_open_transactions = open_transactions[:]
     copied_open_transactions.append(reward_tx)
 
+    block = {
+        'previous_hash': hashed_block,
+        'index': len(blockchain),
+        'transactions': copied_open_transactions
+    }
     blockchain.append(block)
     return True
 
@@ -125,6 +124,11 @@ def verify_chain():
     return True
 
 
+def check_transaction_validity():
+    ''' Check if all transactions are valid '''
+    return all([verify_tx(tx) for tx in open_transactions])
+
+
 while True:
     print('==================================')
     print('Please choose')
@@ -134,6 +138,7 @@ while True:
     print('4: Show participants')
     print('5: Show balance')
     print('6: Show open transactions')
+    print('7: Check transaction validity')
     print('h: Manipulate the chain')
     print('q: Quit')
 
@@ -159,6 +164,11 @@ while True:
         print('Balance: ' + str(balance))
     elif user_choice == '6':
         print(open_transactions)
+    elif user_choice == '7':
+        if check_transaction_validity():
+            print('All transactions are valid')
+        else:
+            print('There are invalid transactions!')
     elif user_choice == 'h':
         if len(blockchain) >= 1:
             blockchain[0] = {
