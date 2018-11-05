@@ -159,9 +159,9 @@ while True:
         print(participants)
     elif user_choice == '5':
         (amount_sent, amount_recieved, balance) = get_balance(owner)
-        print('Amount sent: ' + str(amount_sent))
-        print('Amount recieved: ' + str(amount_recieved))
-        print('Balance: ' + str(balance))
+        print(f'{owner} sent: {amount_sent:.2f}')
+        print(f'{owner} recieved: {amount_recieved:.2f}')
+        print(f'Balance of {owner}: {balance:.2f}')
     elif user_choice == '6':
         print(open_transactions)
     elif user_choice == '7':
