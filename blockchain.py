@@ -11,7 +11,7 @@ blockchain.append(genesis_block)
 open_transactions = []  # list of open transactions
 owner = 'Dan'
 participants = {'Dan'}  # set of participants (only unique values)
-MINIGN_REWARD = 10
+MINING_REWARD = 10
 
 
 def hash_block(block):
@@ -80,7 +80,7 @@ def mine_block():
     reward_tx = {
         'sender': "MINING",
         'recipient': owner,
-        'amount': MINIGN_REWARD
+        'amount': MINING_REWARD
     }
     copied_open_transactions = open_transactions[:]
     copied_open_transactions.append(reward_tx)
