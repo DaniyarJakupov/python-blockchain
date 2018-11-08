@@ -27,13 +27,13 @@ def get_balance(participant):
     tx_sender.append(open_tx_sender)
     # Calc total amount sent with reduce func
     amount_sent = functools.reduce(
-        lambda tx_sum, tx_amount: tx_sum + tx_amount[0] if len(tx_amount) > 0 else 0, tx_sender, 0)
+        lambda tx_sum, tx_amount: tx_sum + sum(tx_amount) if len(tx_amount) > 0 else tx_sum + 0, tx_sender, 0)
     # get the list with amount of coins recieved
     tx_recipient = [[tx['amount'] for tx in block['transactions'] if participant == tx['recipient']]
                     for block in blockchain]
     # Calc total amount recieved with reduce func
     amount_recieved = functools.reduce(
-        lambda tx_sum, tx_amount: tx_sum + tx_amount[0] if len(tx_amount) > 0 else 0, tx_recipient, 0)
+        lambda tx_sum, tx_amount: tx_sum + sum(tx_amount) if len(tx_amount) > 0 else tx_sum + 0, tx_recipient, 0)
 
     balance = amount_recieved - amount_sent
     return (amount_sent, amount_recieved, balance)
