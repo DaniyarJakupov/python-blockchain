@@ -1,5 +1,6 @@
 import functools
-
+import hashlib
+import json
 # Initializing blockchain list
 blockchain = []  # list of blocks
 genesis_block = {
@@ -15,10 +16,11 @@ MINING_REWARD = 10
 
 
 def hash_block(block):
-    return '-'.join([str(block[key]) for key in block])  # list comprehension
+    return hashlib.sha256(json.dumps(block).encode()).hexdigest()
 
 
 def get_balance(participant):
+    # list comprehension
     # get the list with amount of coins sent
     tx_sender = [[tx['amount'] for tx in block['transactions'] if participant == tx['sender']]
                  for block in blockchain]
