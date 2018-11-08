@@ -1,3 +1,5 @@
+import functools
+
 # Initializing blockchain list
 blockchain = []  # list of blocks
 genesis_block = {
@@ -23,17 +25,15 @@ def get_balance(participant):
     open_tx_sender = [tx['amount']
                       for tx in open_transactions if tx['sender'] == participant]
     tx_sender.append(open_tx_sender)
-    amount_sent = 0
-    for tx in tx_sender:
-        if len(tx) > 0:
-            amount_sent += tx[0]
+    # Calc total amount sent with reduce func
+    amount_sent = functools.reduce(
+        lambda tx_sum, tx_amount: tx_sum + tx_amount[0] if len(tx_amount) > 0 else 0, tx_sender, 0)
     # get the list with amount of coins recieved
     tx_recipient = [[tx['amount'] for tx in block['transactions'] if participant == tx['recipient']]
                     for block in blockchain]
-    amount_recieved = 0
-    for tx in tx_recipient:
-        if len(tx) > 0:
-            amount_recieved += tx[0]
+    # Calc total amount recieved with reduce func
+    amount_recieved = functools.reduce(
+        lambda tx_sum, tx_amount: tx_sum + tx_amount[0] if len(tx_amount) > 0 else 0, tx_recipient, 0)
 
     balance = amount_recieved - amount_sent
     return (amount_sent, amount_recieved, balance)
