@@ -1,6 +1,7 @@
 import functools
 import hashlib
 import json
+from collections import OrderedDict
 # Initializing blockchain list
 blockchain = []  # list of blocks
 genesis_block = {
@@ -17,7 +18,7 @@ MINING_REWARD = 10
 
 
 def hash_block(block):
-    return hashlib.sha256(json.dumps(block).encode()).hexdigest()
+    return hashlib.sha256(json.dumps(block, sort_keys=True).encode()).hexdigest()
 
 
 def valid_proof(transactions, last_hash, proof):
@@ -71,11 +72,14 @@ def add_transaction(recipient, amount=1.0, sender=owner):
         :recipient: reciever of the coins
         :amount: amount of coins sent with the transaction
     """
-    transaction = {
-        "sender": sender,
-        "recipient": recipient,
-        "amount": amount
-    }
+    # transaction = {
+    #     "sender": sender,
+    #     "recipient": recipient,
+    #     "amount": amount
+    # }
+    transaction = OrderedDict([
+        ("sender", sender), ("recipient", recipient), ("amount", amount)
+    ])
     if verify_tx(transaction):
         open_transactions.append(transaction)
         participants.add(sender)
@@ -96,11 +100,10 @@ def mine_block():
     # then convert it to string
     hashed_block = hash_block(last_block)
     proof = proof_of_work()
-    reward_tx = {
-        'sender': "MINING",
-        'recipient': owner,
-        'amount': MINING_REWARD
-    }
+    reward_tx = OrderedDict([
+        ("sender", "MINING"), ("recipient", owner), ("amount", MINING_REWARD)
+    ])
+    # Copy trans. instead of mutating original open_tx.
     copied_open_transactions = open_transactions[:]
     copied_open_transactions.append(reward_tx)
 
