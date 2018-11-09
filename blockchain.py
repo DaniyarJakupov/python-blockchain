@@ -6,7 +6,8 @@ blockchain = []  # list of blocks
 genesis_block = {
     'previous_hash': '',
     'index': 0,
-    'transactions': []
+    'transactions': [],
+    'proof': 100
 }
 blockchain.append(genesis_block)
 open_transactions = []  # list of open transactions
@@ -17,6 +18,21 @@ MINING_REWARD = 10
 
 def hash_block(block):
     return hashlib.sha256(json.dumps(block).encode()).hexdigest()
+
+
+def valid_proof(transactions, last_hash, proof):
+    guess = (str(transactions) + str(last_hash) + str(proof)).encode()
+    guess_hash = hashlib.sha256(guess).hexdigest()
+    return guess_hash[0:2] == '00'
+
+
+def proof_of_work():
+    last_block = blockchain[-1]
+    last_hash = hash_block(last_block)
+    proof = 0
+    while not valid_proof(open_transactions, last_hash, proof):
+        proof += 1
+    return proof
 
 
 def get_balance(participant):
@@ -79,6 +95,7 @@ def mine_block():
     # and create a new list w/ values from lsat_block dict
     # then convert it to string
     hashed_block = hash_block(last_block)
+    proof = proof_of_work()
     reward_tx = {
         'sender': "MINING",
         'recipient': owner,
@@ -90,7 +107,8 @@ def mine_block():
     block = {
         'previous_hash': hashed_block,
         'index': len(blockchain),
-        'transactions': copied_open_transactions
+        'transactions': copied_open_transactions,
+        'proof': proof
     }
     blockchain.append(block)
     return True
@@ -122,6 +140,9 @@ def verify_chain():
         if index == 0:
             continue
         if block['previous_hash'] != hash_block(blockchain[index - 1]):
+            return False
+        if not valid_proof(block['transactions'][:-1], block['previous_hash'], block['proof']):
+            print('Proof of work is invalid')
             return False
     return True
 
