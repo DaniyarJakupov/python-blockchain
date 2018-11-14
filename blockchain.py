@@ -1,8 +1,9 @@
 import functools
 import hashlib
 from collections import OrderedDict
-
 from hash_utils import hash_string_256, hash_block
+
+
 # Initializing blockchain list
 blockchain = []  # list of blocks
 genesis_block = {
