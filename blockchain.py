@@ -82,6 +82,7 @@ def add_transaction(recipient, amount=1.0, sender=owner):
         open_transactions.append(transaction)
         participants.add(sender)
         participants.add(recipient)
+        save_data()
         return True
     return False
 
@@ -112,6 +113,7 @@ def mine_block():
         'proof': proof
     }
     blockchain.append(block)
+    save_data()
     return True
 
 
@@ -151,6 +153,13 @@ def verify_chain():
 def check_transaction_validity():
     ''' Check if all transactions are valid '''
     return all([verify_tx(tx) for tx in open_transactions])
+
+
+def save_data():
+    with open('blockchain.txt', mode='w') as file:
+        file.write(str(blockchain))
+        file.write('\n')
+        file.write(str(open_transactions))
 
 
 while True:
