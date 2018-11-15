@@ -2,10 +2,13 @@ import functools
 import hashlib
 from collections import OrderedDict
 from hash_utils import hash_string_256, hash_block
+import json
+import os.path
 
 
 # Initializing blockchain list
 blockchain = []  # list of blocks
+# Starting block for the blockchain
 genesis_block = {
     'previous_hash': '',
     'index': 0,
@@ -13,10 +16,54 @@ genesis_block = {
     'proof': 100
 }
 blockchain.append(genesis_block)
-open_transactions = []  # list of open transactions
+open_transactions = []  # list of unhandled transactions
 owner = 'Dan'
-participants = {'Dan'}  # set of participants (only unique values)
+participants = {'Dan'}  # set of participants (only unique values)\
+
+# The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
+
+
+def file_exists(path):
+    return os.path.isfile(path)
+
+
+def load_data():
+    if (file_exists('./blockchain.txt')):
+        with open('blockchain.txt', mode='r') as f:
+            file_content = f.readlines()
+            global blockchain
+            global open_transactions
+            blockchain = json.loads(file_content[0][:-1])
+            updated_blockchain = []
+            for block in blockchain:
+                updated_block = {
+                    'previous_hash': block['previous_hash'],
+                    'index': block['index'],
+                    'proof': block['proof'],
+                    'transactions': [OrderedDict(
+                        [('sender', tx['sender']), ('recipient', tx['recipient']), ('amount', tx['amount'])]) for tx in block['transactions']]
+                }
+                updated_blockchain.append(updated_block)
+            blockchain = updated_blockchain
+            open_transactions = json.loads(file_content[1])
+            updated_transactions = []
+            for tx in open_transactions:
+                updated_transaction = OrderedDict(
+                    [('sender', tx['sender']), ('recipient', tx['recipient']), ('amount', tx['amount'])])
+                updated_transactions.append(updated_transaction)
+            open_transactions = updated_transactions
+    return None
+
+
+load_data()
+
+
+def save_data():
+    with open('blockchain.txt', mode='w') as file:
+        file.write(json.dumps(blockchain))
+        file.write('\n')
+        file.write(json.dumps(open_transactions))
 
 
 def valid_proof(transactions, last_hash, proof):
@@ -113,7 +160,6 @@ def mine_block():
         'proof': proof
     }
     blockchain.append(block)
-    save_data()
     return True
 
 
@@ -155,13 +201,6 @@ def check_transaction_validity():
     return all([verify_tx(tx) for tx in open_transactions])
 
 
-def save_data():
-    with open('blockchain.txt', mode='w') as file:
-        file.write(str(blockchain))
-        file.write('\n')
-        file.write(str(open_transactions))
-
-
 while True:
     print('==================================')
     print('Please choose')
@@ -186,6 +225,7 @@ while True:
     elif user_choice == '2':
         if mine_block():
             open_transactions = []
+            save_data()
     elif user_choice == '3':
         print_blockchain_elements()
     elif user_choice == '4':
