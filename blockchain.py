@@ -9,14 +9,6 @@ import pickle
 
 # Initializing blockchain list
 blockchain = []  # list of blocks
-# Starting block for the blockchain
-genesis_block = {
-    'previous_hash': '',
-    'index': 0,
-    'transactions': [],
-    'proof': 100
-}
-blockchain.append(genesis_block)
 open_transactions = []  # list of unhandled transactions
 owner = 'Dan'
 participants = {'Dan'}  # set of participants (only unique values)\
@@ -30,27 +22,39 @@ def file_exists(path):
 
 
 def load_data():
-    if (file_exists('./blockchain.txt')):
+    global blockchain
+    global open_transactions
+    try:
         with open('blockchain.txt', mode='rb') as f:
             file_content = pickle.loads(f.read())
-            global blockchain
-            global open_transactions
             blockchain = file_content['chain']
             open_transactions = file_content['ot']
-    return None
+    except IOError:
+        print('File not found')
+        # Starting block for the blockchain
+        genesis_block = {
+            'previous_hash': '',
+            'index': 0,
+            'transactions': [],
+            'proof': 100
+        }
+        blockchain.append(genesis_block)
 
 
 load_data()
 
 
 def save_data():
-    # Use pickle lib to store data in a binary format
-    with open('blockchain.txt', mode='wb') as file:
-        save_data = {
-            'chain': blockchain,
-            'ot': open_transactions
-        }
-        file.write(pickle.dumps(save_data))
+    try:
+        # Use pickle lib to store data in a binary format
+        with open('blockchain.txt', mode='wb') as file:
+            save_data = {
+                'chain': blockchain,
+                'ot': open_transactions
+            }
+            file.write(pickle.dumps(save_data))
+    except IOError:
+        print('Saving failed')
 
 
 def valid_proof(transactions, last_hash, proof):
