@@ -6,6 +6,8 @@ import json
 import os.path
 import pickle
 
+from block import Block
+
 
 # Initializing blockchain list
 blockchain = []  # list of blocks
@@ -32,12 +34,7 @@ def load_data():
     except IOError:
         print('File not found')
         # Starting block for the blockchain
-        genesis_block = {
-            'previous_hash': '',
-            'index': 0,
-            'transactions': [],
-            'proof': 100
-        }
+        genesis_block = Block(0, '', [], 100, 0)
         blockchain.append(genesis_block)
 
 
@@ -75,7 +72,7 @@ def proof_of_work():
 def get_balance(participant):
     # list comprehension
     # get the list with amount of coins sent
-    tx_sender = [[tx['amount'] for tx in block['transactions'] if participant == tx['sender']]
+    tx_sender = [[tx['amount'] for tx in block.transactions if participant == tx['sender']]
                  for block in blockchain]
     open_tx_sender = [tx['amount']
                       for tx in open_transactions if tx['sender'] == participant]
@@ -84,7 +81,7 @@ def get_balance(participant):
     amount_sent = functools.reduce(
         lambda tx_sum, tx_amount: tx_sum + sum(tx_amount) if len(tx_amount) > 0 else tx_sum + 0, tx_sender, 0)
     # get the list with amount of coins recieved
-    tx_recipient = [[tx['amount'] for tx in block['transactions'] if participant == tx['recipient']]
+    tx_recipient = [[tx['amount'] for tx in block.transactions if participant == tx['recipient']]
                     for block in blockchain]
     # Calc total amount recieved with reduce func
     amount_recieved = functools.reduce(
@@ -144,12 +141,8 @@ def mine_block():
     copied_open_transactions = open_transactions[:]
     copied_open_transactions.append(reward_tx)
 
-    block = {
-        'previous_hash': hashed_block,
-        'index': len(blockchain),
-        'transactions': copied_open_transactions,
-        'proof': proof
-    }
+    block = Block(len(blockchain),  hashed_block,
+                  copied_open_transactions, proof)
     blockchain.append(block)
     return True
 
@@ -179,9 +172,9 @@ def verify_chain():
     for (index, block) in enumerate(blockchain):
         if index == 0:
             continue
-        if block['previous_hash'] != hash_block(blockchain[index - 1]):
+        if block.previous_hash != hash_block(blockchain[index - 1]):
             return False
-        if not valid_proof(block['transactions'][:-1], block['previous_hash'], block['proof']):
+        if not valid_proof(block.transactions[:-1], block.previous_hash, block.proof):
             print('Proof of work is invalid')
             return False
     return True
@@ -202,7 +195,6 @@ while True:
     print('5: Show balance')
     print('6: Show open transactions')
     print('7: Check transaction validity')
-    print('h: Manipulate the chain')
     print('q: Quit')
 
     user_choice = get_user_choice()
@@ -233,13 +225,6 @@ while True:
             print('All transactions are valid')
         else:
             print('There are invalid transactions!')
-    elif user_choice == 'h':
-        if len(blockchain) >= 1:
-            blockchain[0] = {
-                'previous_hash': '',
-                'index': 0,
-                'transactions': [{'sender': 'Max', 'recipient': owner, 'amount': 1000}]
-            }
     elif user_choice == 'q':
         break
     else:
