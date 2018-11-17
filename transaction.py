@@ -1,7 +1,8 @@
 from collections import OrderedDict
+from print import Print
 
 
-class Transaction:
+class Transaction(Print):
     def __init__(self, sender, recipient, amount):
         self.sender = sender
         self.recipient = recipient
