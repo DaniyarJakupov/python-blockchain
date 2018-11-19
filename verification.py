@@ -19,7 +19,7 @@ class Verification:
         return all([self.verify_tx(tx, get_balance) for tx in open_transactions])
 
     def verify_tx(self, transaction, get_balance):
-        (_, _, sender_balance) = get_balance(transaction.sender)
+        (_, _, sender_balance) = get_balance()
         return sender_balance >= transaction.amount
 
     def valid_proof(self, transactions, last_hash, proof):
