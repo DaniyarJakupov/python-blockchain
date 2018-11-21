@@ -20,7 +20,7 @@ class Node:
             print('6: Show open transactions')
             print('7: Check transaction validity')
             print('q: Quit')
-            ver = Verification()
+            print('==================================')
             user_choice = self.get_user_choice()
             if user_choice == '1':
                 tx_data = self.get_transaction_value()  # returns a tuple
@@ -42,7 +42,7 @@ class Node:
             elif user_choice == '6':
                 print(self.blockchain.open_transactions)
             elif user_choice == '7':
-                if ver.check_transaction_validity(self.blockchain.open_transactions, self.blockchain.get_balance):
+                if Verification.check_transaction_validity(self.blockchain.open_transactions, self.blockchain.get_balance):
                     print('All transactions are valid')
                 else:
                     print('There are invalid transactions!')
@@ -51,7 +51,7 @@ class Node:
             else:
                 print('Input was invalid, please pick a value from the list!')
 
-            if not ver.verify_chain(self.blockchain.chain):
+            if not Verification.verify_chain(self.blockchain.chain):
                 print('Invalid blockchain')
                 break
         print('Done!')
