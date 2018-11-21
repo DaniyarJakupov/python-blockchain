@@ -51,7 +51,7 @@ class Node:
             else:
                 print('Input was invalid, please pick a value from the list!')
 
-            if not Verification.verify_chain(self.blockchain.get_chain()):
+            if not Verification.verify_chain(self.blockchain.chain):
                 print('Invalid blockchain')
                 break
         print('Done!')
@@ -71,7 +71,7 @@ class Node:
         # for block in self.blockchain.chain:
         #     print('Outputting Block')
         #     print(block)
-        print(self.blockchain.get_chain())
+        print(self.blockchain.chain)
 
 
 node = Node()
