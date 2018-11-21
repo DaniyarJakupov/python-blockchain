@@ -1,13 +1,13 @@
 import functools
 import hashlib
-from hash_utils import hash_string_256, hash_block
 import json
 import os.path
 import pickle
 
 from block import Block
 from transaction import Transaction
-from verification import Verification
+from utils.verification import Verification
+from utils.hash_utils import hash_string_256, hash_block
 
 # The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
