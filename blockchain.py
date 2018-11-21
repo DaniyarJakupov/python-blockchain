@@ -21,13 +21,18 @@ class Blockchain:
     # Initializing blockchain list
     def __init__(self, hosting_node_id):
         genesis_block = Block(0, '', [], 100, 0)  # Starting block
-        self.__chain = [genesis_block]  # list of blocks
+        self.chain = [genesis_block]  # list of blocks
         self.__open_transactions = []  # list of unhandled transactions
         self.hosting_node = hosting_node_id
         self.load_data()
 
-    def get_chain(self):
+    @property
+    def chain(self):
         return self.__chain[:]
+
+    @chain.setter
+    def chain(self, val):
+        self.__chain = val
 
     def get_open_transactions(self):
         return self.__open_transactions[:]
@@ -36,7 +41,7 @@ class Blockchain:
         try:
             with open('blockchain.txt', mode='rb') as f:
                 file_content = pickle.loads(f.read())
-                self.__chain = file_content['chain']
+                self.chain = file_content['chain']
                 self.__open_transactions = file_content['ot']
         except IOError:
             print('File not found')
