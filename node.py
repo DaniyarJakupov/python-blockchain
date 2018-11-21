@@ -5,7 +5,7 @@ from verification import Verification
 
 class Node:
     def __init__(self):
-        #self.id = str(uuid4())
+        # self.id = str(uuid4())
         self.id = 'Dan'
         self.blockchain = Blockchain(self.id)
 
@@ -40,9 +40,9 @@ class Node:
                 print(f'{self.id} recieved: {amount_recieved:.2f}')
                 print(f'Balance of {self.id}: {balance:.2f}')
             elif user_choice == '6':
-                print(self.blockchain.open_transactions)
+                print(self.blockchain.get_open_transactions())
             elif user_choice == '7':
-                if Verification.check_transaction_validity(self.blockchain.open_transactions, self.blockchain.get_balance):
+                if Verification.check_transaction_validity(self.blockchain.get_open_transactions(), self.blockchain.get_balance):
                     print('All transactions are valid')
                 else:
                     print('There are invalid transactions!')
@@ -51,7 +51,7 @@ class Node:
             else:
                 print('Input was invalid, please pick a value from the list!')
 
-            if not Verification.verify_chain(self.blockchain.chain):
+            if not Verification.verify_chain(self.blockchain.get_chain()):
                 print('Invalid blockchain')
                 break
         print('Done!')
@@ -71,7 +71,7 @@ class Node:
         # for block in self.blockchain.chain:
         #     print('Outputting Block')
         #     print(block)
-        print(self.blockchain.chain)
+        print(self.blockchain.get_chain())
 
 
 node = Node()
