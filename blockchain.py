@@ -8,6 +8,7 @@ from block import Block
 from transaction import Transaction
 from utils.verification import Verification
 from utils.hash_utils import hash_string_256, hash_block
+from wallet import Wallet
 
 # The reward we give to miners (for creating a new block)
 MINING_REWARD = 10
@@ -97,7 +98,9 @@ class Blockchain:
     def add_transaction(self, recipient, sender, signature, amount=1.0):
         if self.hosting_node == None:
             return False
+
         transaction = Transaction(sender, recipient, signature, amount)
+
         if Verification.verify_tx(transaction, self.get_balance):
             self.__open_transactions.append(transaction)
             self.save_data()
@@ -118,11 +121,19 @@ class Blockchain:
 
         # Copy trans. instead of mutating original open_tx.
         copied_open_transactions = self.__open_transactions[:]
+
+        # Verify each transaction in block
+        for tx in copied_open_transactions:
+            if not Wallet.verify_transaction(tx):
+                return False
+
+        # Add reward transaction
         copied_open_transactions.append(reward_tx)
 
         # Create a block object
         block = Block(len(self.__chain),  hashed_block,
                       copied_open_transactions, proof)
+
         # Add newly created block to blockchain
         self.__chain.append(block)
 

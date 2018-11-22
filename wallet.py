@@ -48,3 +48,11 @@ class Wallet:
             (str(sender) + str(recipient) + str(amount)).encode('utf-8'))
         signature = signer.sign(hashed_payload)
         return binascii.hexlify(signature).decode('ascii')
+
+    @staticmethod
+    def verify_transaction(transaction):
+        public_key = RSA.importKey(binascii.unhexlify(transaction.sender))
+        verifier = PKCS1_v1_5.new(public_key)
+        hashed_payload = SHA256.new(
+            (str(transaction.sender) + str(transaction.recipient) + str(transaction.amount)).encode('utf-8'))
+        return verifier.verify(hashed_payload, binascii.unhexlify(transaction.signature))
