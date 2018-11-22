@@ -13,8 +13,26 @@ class Wallet:
         self.private_key = private_key
         self.public_key = public_key
 
+    def save_keys(self):
+        if self.public_key != None and self.private_key != None:
+            try:
+                with open('wallet.txt', mode='w') as file:
+                    file.write(self.public_key)
+                    file.write('\n')
+                    file.write(self.private_key)
+            except (IOError, IndexError):
+                print('Saving wallet failed')
+
     def load_keys(self):
-        pass
+        try:
+            with open('wallet.txt', mode='r') as file:
+                keys = file.readlines()
+                public_key = keys[0][:-1]
+                private_ley = keys[1]
+                self.public_key = public_key
+                self.private_key = private_ley
+        except (IOError, IndexError):
+            print('Loading wallet failed')
 
     def generate_keys(self):
         private_key = RSA.generate(1024, Crypto.Random.new().read)
