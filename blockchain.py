@@ -94,15 +94,10 @@ class Blockchain:
             return None
         return self.__chain[-1]
 
-    def add_transaction(self, recipient, sender, amount=1.0):
-        # transaction = {
-        #     "sender": sender,
-        #     "recipient": recipient,
-        #     "amount": amount
-        # }
+    def add_transaction(self, recipient, sender, signature, amount=1.0):
         if self.hosting_node == None:
             return False
-        transaction = Transaction(sender, recipient, amount)
+        transaction = Transaction(sender, recipient, signature, amount)
         if Verification.verify_tx(transaction, self.get_balance):
             self.__open_transactions.append(transaction)
             self.save_data()
@@ -118,7 +113,8 @@ class Blockchain:
         # then convert it to string
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()
-        reward_tx = Transaction('MINING', self.hosting_node, MINING_REWARD)
+        reward_tx = Transaction(
+            'MINING', self.hosting_node, '',  MINING_REWARD)
 
         # Copy trans. instead of mutating original open_tx.
         copied_open_transactions = self.__open_transactions[:]

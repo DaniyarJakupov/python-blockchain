@@ -27,33 +27,35 @@ class Node:
             print('q: Quit')
             print('==================================')
             user_choice = self.get_user_choice()
-            if user_choice == '0':
+            if user_choice == '0':  # Create wallet
                 self.wallet.create_keys()
                 self.blockchain = Blockchain(self.wallet.public_key)
 
-            elif user_choice == '1':
+            elif user_choice == '1':  # Load wallet
                 self.wallet.load_keys()
                 self.blockchain = Blockchain(self.wallet.public_key)
 
-            elif user_choice == '2':
+            elif user_choice == '2':  # Save wallet
                 self.wallet.save_keys()
 
-            elif user_choice == '3':
+            elif user_choice == '3':  # Add new open transaction
                 tx_data = self.get_transaction_value()  # returns a tuple
                 recipient, amount = tx_data
-                if self.blockchain.add_transaction(recipient, self.wallet.public_key, amount=amount):
+                signature = self.wallet.sign_transaction(
+                    self.wallet.public_key, recipient, amount)
+                if self.blockchain.add_transaction(recipient, self.wallet.public_key, signature, amount=amount):
                     print('Added transaction!')
                 else:
                     print('Transaction failed!')
 
-            elif user_choice == '4':
+            elif user_choice == '4':  # Mine new block
                 if not self.blockchain.mine_block():
                     print('Mining failed. Wallet wasnot found')
 
-            elif user_choice == '5':
+            elif user_choice == '5':  # Show blockchain
                 self.print_blockchain_elements()
 
-            elif user_choice == '6':
+            elif user_choice == '6':  # Show balance
                 (amount_sent, amount_recieved,
                  balance) = self.blockchain.get_balance()
                 print(f'{self.wallet.public_key[:5]} sent: {amount_sent:.2f}')
@@ -62,7 +64,7 @@ class Node:
                 print(
                     f'Balance of {self.wallet.public_key[:5]}: {balance:.2f}')
 
-            elif user_choice == '7':
+            elif user_choice == '7':  # Show open transactions
                 print(self.blockchain.get_open_transactions())
 
             elif user_choice == '8':
