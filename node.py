@@ -8,24 +8,28 @@ class Node:
     def __init__(self):
         # self.wallet.public_key = str(uuid4())
         self.wallet = Wallet()
+        self.wallet.create_keys()
         self.blockchain = Blockchain(self.wallet.public_key)
 
     def listen_for_input(self):
         while True:
             print('==================================')
             print('Please choose')
+            print('0: Create wallet')
             print('1: Add a new transaction')
             print('2: Mine new block')
             print('3: Show blockchain')
-            print('4: Create wallet')
+            print('4: Load wallet')
             print('5: Show balance')
             print('6: Show open transactions')
             print('7: Check transaction validity')
-            print('8: Load wallet')
             print('q: Quit')
             print('==================================')
             user_choice = self.get_user_choice()
-            if user_choice == '1':
+            if user_choice == '0':
+                self.wallet.create_keys()
+                self.blockchain = Blockchain(self.wallet.public_key)
+            elif user_choice == '1':
                 tx_data = self.get_transaction_value()  # returns a tuple
                 recipient, amount = tx_data
                 if self.blockchain.add_transaction(recipient, self.wallet.public_key, amount=amount):
@@ -33,17 +37,20 @@ class Node:
                 else:
                     print('Transaction failed!')
             elif user_choice == '2':
-                self.blockchain.mine_block()
+                if not self.blockchain.mine_block():
+                    print('Mining failed. Wallet wasnot found')
             elif user_choice == '3':
                 self.print_blockchain_elements()
             elif user_choice == '4':
-                self.wallet.create_keys()
+                pass
             elif user_choice == '5':
                 (amount_sent, amount_recieved,
                  balance) = self.blockchain.get_balance()
-                print(f'{self.wallet.public_key} sent: {amount_sent:.2f}')
-                print(f'{self.wallet.public_key} recieved: {amount_recieved:.2f}')
-                print(f'Balance of {self.wallet.public_key}: {balance:.2f}')
+                print(f'{self.wallet.public_key[:5]} sent: {amount_sent:.2f}')
+                print(
+                    f'{self.wallet.public_key[:5]} recieved: {amount_recieved:.2f}')
+                print(
+                    f'Balance of {self.wallet.public_key[:5]}: {balance:.2f}')
             elif user_choice == '6':
                 print(self.blockchain.get_open_transactions())
             elif user_choice == '7':
@@ -51,8 +58,6 @@ class Node:
                     print('All transactions are valid')
                 else:
                     print('There are invalid transactions!')
-            elif user_choice == '8':
-                pass
             elif user_choice == 'q':
                 break
             else:
