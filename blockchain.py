@@ -100,6 +100,8 @@ class Blockchain:
         #     "recipient": recipient,
         #     "amount": amount
         # }
+        if self.hosting_node == None:
+            return False
         transaction = Transaction(sender, recipient, amount)
         if Verification.verify_tx(transaction, self.get_balance):
             self.__open_transactions.append(transaction)
@@ -108,6 +110,8 @@ class Blockchain:
         return False
 
     def mine_block(self):
+        if self.hosting_node == None:
+            return False
         last_block = self.__chain[-1]  # get last_block from blockchain list
         # use list comprehention to loop over keys in last_block dict
         # and create a new list w/ values from last_block dict
