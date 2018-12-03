@@ -1,15 +1,30 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
+
 from wallet import Wallet
+from blockchain import Blockchain
 
 app = Flask(__name__)
-wallet = Wallet()
 CORS(app)
+
+wallet = Wallet()
+blockchain = Blockchain(wallet.public_key)
 
 
 @app.route('/', methods=['GET'])
 def get_ui():
     return 'Hi there'
+
+
+@app.route('/chain', methods=['GET'])
+def get_chain():
+    chain = blockchain.chain
+    dict_chain = [block.__dict__.copy() for block in chain]
+    for dict_block in dict_chain:
+        dict_block['transactions'] = [
+            tx.__dict__ for tx in dict_block['transactions']]
+
+    return (jsonify(dict_chain), 200)
 
 
 if __name__ == '__main__':
