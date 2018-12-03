@@ -109,7 +109,7 @@ class Blockchain:
 
     def mine_block(self):
         if self.hosting_node == None:
-            return False
+            return None
         last_block = self.__chain[-1]  # get last_block from blockchain list
         # use list comprehention to loop over keys in last_block dict
         # and create a new list w/ values from last_block dict
@@ -125,7 +125,7 @@ class Blockchain:
         # Verify each transaction in block
         for tx in copied_open_transactions:
             if not Wallet.verify_transaction(tx):
-                return False
+                return None
 
         # Add reward transaction
         copied_open_transactions.append(reward_tx)
@@ -139,4 +139,4 @@ class Blockchain:
 
         self.__open_transactions = []
         self.save_data()
-        return True
+        return block
