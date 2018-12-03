@@ -27,5 +27,25 @@ def get_chain():
     return (jsonify(dict_chain), 200)
 
 
+@app.route('/mine', methods=['POST'])
+def mine():
+    block = blockchain.mine_block()
+    if block != None:
+        dict_block = block.__dict__.copy()
+        dict_block['transactions'] = [
+            tx.__dict__ for tx in dict_block['transactions']]
+        response = {
+            'message': 'Block mined successfully',
+            'block': dict_block
+        }
+        return (jsonify(response), 200)
+    else:
+        response = {
+            'message': 'Failed to mine a block',
+            'wallet_setup': wallet.public_key != None
+        }
+        return (jsonify(response), 500)
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
