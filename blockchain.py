@@ -111,9 +111,6 @@ class Blockchain:
         if self.hosting_node == None:
             return None
         last_block = self.__chain[-1]  # get last_block from blockchain list
-        # use list comprehention to loop over keys in last_block dict
-        # and create a new list w/ values from last_block dict
-        # then convert it to string
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()
         reward_tx = Transaction(
