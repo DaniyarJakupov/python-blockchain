@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from wallet import Wallet
@@ -67,6 +67,53 @@ def load_keys():
     else:
         response = {
             'message': 'Wallet loading failed!'
+        }
+        return (jsonify(response), 500)
+
+
+@app.route('/transaction', methods=['POST'])
+def add_transaction():
+    if wallet.public_key == None:
+        response = {
+            'message': 'No wallet found!'
+        }
+        return (jsonify(response), 400)
+
+    params = request.get_json()
+    if not params:
+        response = {
+            'message': 'You have to provide params!'
+        }
+        return (jsonify(response), 400)
+
+    required_fields = ['recipient', 'amount']
+    if not all(field in params for field in required_fields):
+        response = {
+            'message': 'Required data is missing!'
+        }
+        return (jsonify(response), 400)
+
+    recipient = params['recipient']
+    amount = params['amount']
+    signature = wallet.sign_transaction(wallet.public_key, recipient, amount)
+    success = blockchain.add_transaction(
+        recipient, wallet.public_key, signature, amount)
+
+    if success:
+        (_, _, balance) = blockchain.get_balance()
+        response = {
+            'message': 'Tx was added to open_transactions',
+            'transaction': {
+                'sender': wallet.public_key,
+                'recipient': recipient,
+                'amount': amount
+            },
+            'balance': balance
+        }
+        return (jsonify(response), 201)
+    else:
+        response = {
+            'message': 'Tx creation failed :('
         }
         return (jsonify(response), 500)
 
