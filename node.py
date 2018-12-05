@@ -118,6 +118,20 @@ def add_transaction():
         return (jsonify(response), 500)
 
 
+@app.route('/transactions', methods=['GET'])
+def get_open_transactions():
+    if wallet.public_key == None:
+        response = {
+            'message': 'No wallet found!'
+        }
+        return (jsonify(response), 400)
+    else:
+        response = {
+            'open_transactions': [tx.__dict__ for tx in blockchain.get_open_transactions()]
+        }
+        return (jsonify(response), 200)
+
+
 @app.route('/chain', methods=['GET'])
 def get_chain():
     chain = blockchain.chain
