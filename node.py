@@ -11,6 +11,29 @@ wallet = Wallet()
 blockchain = Blockchain(wallet.public_key)
 
 
+@app.route('/', methods=['GET'])
+def get_ui():
+    return 'Welcome to pycoin!'
+
+
+@app.route('/balance', methods=['GET'])
+def get_balance():
+    if blockchain.get_balance() != None:
+        (amount_sent, amount_recieved, balance) = blockchain.get_balance()
+        response = {
+            'sent': f'{amount_sent:.2f}',
+            'recieved': f'{amount_recieved: .2f}',
+            'total':  f'{balance:.2f}'
+        }
+        return (jsonify(response), 200)
+    else:
+        response = {
+            'message': 'Cound not get the balance',
+            'wallet_setup': wallet.public_key != None
+        }
+        return (jsonify(response), 500)
+
+
 @app.route('/wallet', methods=['POST'])
 def create_keys():
     wallet.create_keys()
@@ -34,9 +57,11 @@ def load_keys():
     if wallet.load_keys():
         global blockchain
         blockchain = Blockchain(wallet.public_key)
+        (_, _, balance) = blockchain.get_balance()
         response = {
             'public_key': wallet.public_key,
-            'private_key': wallet.private_key
+            'private_key': wallet.private_key,
+            'balance':  balance
         }
         return (jsonify(response), 200)
     else:
@@ -44,11 +69,6 @@ def load_keys():
             'message': 'Wallet loading failed!'
         }
         return (jsonify(response), 500)
-
-
-@app.route('/', methods=['GET'])
-def get_ui():
-    return 'Hi there'
 
 
 @app.route('/chain', methods=['GET'])
