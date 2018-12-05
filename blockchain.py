@@ -68,6 +68,8 @@ class Blockchain:
         return proof
 
     def get_balance(self):
+        if self.hosting_node == None:
+            return None
         participant = self.hosting_node
         # list comprehension
         # get the list with amount of coins sent
