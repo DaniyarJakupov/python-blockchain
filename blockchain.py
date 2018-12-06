@@ -25,6 +25,7 @@ class Blockchain:
         self.chain = [genesis_block]  # list of blocks
         self.__open_transactions = []  # list of unhandled transactions
         self.hosting_node = hosting_node_id
+        self.__peer_nodes = set()
         self.load_data()
 
     @property
@@ -44,6 +45,7 @@ class Blockchain:
                 file_content = pickle.loads(f.read())
                 self.chain = file_content['chain']
                 self.__open_transactions = file_content['ot']
+                self.__peer_nodes = file_content['peer_nodes']
         except IOError:
             print('File not found')
 
@@ -53,7 +55,8 @@ class Blockchain:
             with open('blockchain.txt', mode='wb') as file:
                 save_data = {
                     'chain': self.__chain,
-                    'ot': self.__open_transactions
+                    'ot': self.__open_transactions,
+                    "peer_nodes": self.__peer_nodes
                 }
                 file.write(pickle.dumps(save_data))
         except IOError:
@@ -139,3 +142,14 @@ class Blockchain:
         self.__open_transactions = []
         self.save_data()
         return block
+
+    def add_peer_node(self, node):
+        self.__peer_nodes.add(node)
+        self.save_data()
+
+    def remove_peer_node(self, node):
+        self.__peer_nodes.discard(node)
+        self.save_data()
+
+    def get_peer_nodes(self):
+        return list(self.__peer_nodes)
