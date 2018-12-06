@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 
 from wallet import Wallet
@@ -13,7 +13,7 @@ blockchain = Blockchain(wallet.public_key)
 
 @app.route('/', methods=['GET'])
 def get_ui():
-    return 'Welcome to pycoin!'
+    return send_from_directory('frontend', 'node.html')
 
 
 @app.route('/balance', methods=['GET'])
@@ -146,13 +146,15 @@ def get_chain():
 @app.route('/mine', methods=['POST'])
 def mine():
     block = blockchain.mine_block()
+    (_, _, balance) = blockchain.get_balance()
     if block != None:
         dict_block = block.__dict__.copy()
         dict_block['transactions'] = [
             tx.__dict__ for tx in dict_block['transactions']]
         response = {
             'message': 'Block mined successfully',
-            'block': dict_block
+            'block': dict_block,
+            'balance': balance
         }
         return (jsonify(response), 200)
     else:
