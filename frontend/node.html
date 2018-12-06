@@ -344,18 +344,20 @@
             this.dataLoading = true;
             if (this.view === "chain") {
               // Load blockchain data
-              let { data } = await axios
-                .get("/chain")
-                .catch(e => (this.error = e));
+              let { data } = await axios.get("/chain").catch(e => {
+                (this.error = "Access denied"), (this.dataLoading = false);
+              });
               this.blockchain = data;
+              this.error = null;
               this.dataLoading = false;
             } else {
               // Load transaction data
-              let { data } = await axios
-                .get("/transactions")
-                .catch(e => (this.error = e));
+              let { data } = await axios.get("/transactions").catch(e => {
+                (this.error = "Access denied"), (this.dataLoading = false);
+              });
               this.openTransactions = data.open_transactions;
               this.dataLoading = false;
+              this.error = null;
             }
           }
         }
