@@ -249,6 +249,32 @@ def broadcast_transactions():
         return (jsonify(response), 500)
 
 
+@app.route('/broadcast_block', methods=['POST'])
+def broadcast_block():
+    params = request.get_json()
+    if not params:
+        response = {
+            'message': 'No data provided'
+        }
+        return (jsonify(response), 400)
+    if 'block' not in params:
+        response = {
+            'message': 'Required data is missing!'
+        }
+        return (jsonify(response), 400)
+
+    block = params['block']
+    if block['index'] == blockchain.chain[-1].index + 1:
+        blockchain.add_block(block)
+    elif block['index'] > blockchain.chain[-1].index + 1:
+        pass
+    else:
+        response = {
+            'message': 'Block not added, your blockchain is not up-to-date'
+        }
+        return (jsonify(response), 409)  # 409 -> data invalid
+
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
