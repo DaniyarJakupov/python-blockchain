@@ -3,6 +3,7 @@ import hashlib
 import json
 import os.path
 import pickle
+import requests
 
 from block import Block
 from transaction import Transaction
@@ -71,10 +72,13 @@ class Blockchain:
             proof += 1
         return proof
 
-    def get_balance(self):
-        if self.public_key == None:
-            return None
-        participant = self.public_key
+    def get_balance(self, sender=None):
+        if sender == None:
+            if self.public_key == None:
+                return None
+            participant = self.public_key
+        else:
+            participant = sender
         # list comprehension
         # get the list with amount of coins sent
         tx_sender = [[tx.amount for tx in block.transactions if participant == tx.sender]
@@ -101,7 +105,7 @@ class Blockchain:
             return None
         return self.__chain[-1]
 
-    def add_transaction(self, recipient, sender, signature, amount=1.0):
+    def add_transaction(self, recipient, sender, signature, amount=1.0, is_receiving=False):
         if self.public_key == None:
             return False
 
@@ -110,6 +114,17 @@ class Blockchain:
         if Verification.verify_tx(transaction, self.get_balance):
             self.__open_transactions.append(transaction)
             self.save_data()
+            if not is_receiving:
+                for node in self.__peer_nodes:
+                    url = 'http://{}/broadcast'.format(node)
+                    try:
+                        response = requests.post(
+                            url, json={"sender": sender, "recipient": recipient, "amount": amount, "signature": signature})
+                        if response.status_code == 400 or response.status_code == 500:
+                            print("Couldn't add TX to peer_nodes")
+                            return False
+                    except requests.exceptions.ConnectionError:
+                        continue
             return True
         return False
 
