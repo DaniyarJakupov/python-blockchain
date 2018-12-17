@@ -159,6 +159,22 @@ class Blockchain:
         self.save_data()
         return block
 
+    def add_block(self, block):
+        transactions = [Transaction(
+            tx['sender'], tx['recipient'], tx['signature'], tx['amount']) for tx in block['transactions']]
+        valid_prood = Verification.valid_proof(
+            transactions, block['previous_hash'], block['proof'])
+        hashes_match = hash_block(self.chain[-1]) == block['previous']
+
+        if not valid_prood or not hashes_match:
+            return False
+
+        converted_block = Block(
+            block['index'], block['previous_hash'], transactions, block['proof'], block['timestamp'])
+        self.__chain.append(converted_block)
+        self.save_data()
+        return True
+
     def add_peer_node(self, node):
         self.__peer_nodes.add(node)
         self.save_data()
