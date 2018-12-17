@@ -1,4 +1,5 @@
 __pycache__
 blockchain.txt
 wallet.txt
+*.txt
 .vscode
