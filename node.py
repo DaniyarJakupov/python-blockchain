@@ -16,6 +16,11 @@ def get_ui():
     return send_from_directory('frontend', 'node.html')
 
 
+@app.route('/network', methods=['GET'])
+def get_network():
+    return send_from_directory('frontend', 'network.html')
+
+
 @app.route('/balance', methods=['GET'])
 def get_balance():
     if blockchain.get_balance() != None:
@@ -199,6 +204,14 @@ def remove_node(node_url):
     blockchain.remove_peer_node(node_url)
     response = {
         'message': 'Successfully removed a node',
+        "all_nodes": blockchain.get_peer_nodes()
+    }
+    return (jsonify(response), 200)
+
+
+@app.route('/nodes', methods=['GET'])
+def get_nodes():
+    response = {
         "all_nodes": blockchain.get_peer_nodes()
     }
     return (jsonify(response), 200)
