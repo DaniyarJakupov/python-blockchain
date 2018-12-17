@@ -61,6 +61,19 @@
         <div class="row mb-3">
           <div class="col"><h1>Manage your Blockchain</h1></div>
         </div>
+        <div class="row">
+          <div class="col">
+            <ul class="nav nav-pills">
+              <li class="nav-item">
+                <a class="nav-link active" href="/">Wallet &amp; Node</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/network">Network</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <hr />
         <div v-if="error" class="alert alert-danger" role="alert">
           {{ error }}
         </div>
@@ -345,7 +358,8 @@
             if (this.view === "chain") {
               // Load blockchain data
               let { data } = await axios.get("/chain").catch(e => {
-                (this.error = "Access denied"), (this.dataLoading = false);
+                this.error = "Access denied";
+                this.dataLoading = false;
               });
               this.blockchain = data;
               this.error = null;
@@ -353,7 +367,8 @@
             } else {
               // Load transaction data
               let { data } = await axios.get("/transactions").catch(e => {
-                (this.error = "Access denied"), (this.dataLoading = false);
+                this.error = "Access denied";
+                this.dataLoading = false;
               });
               this.openTransactions = data.open_transactions;
               this.dataLoading = false;
