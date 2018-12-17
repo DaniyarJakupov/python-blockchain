@@ -20,12 +20,13 @@ def file_exists(path):
 
 class Blockchain:
     # Initializing blockchain list
-    def __init__(self, hosting_node_id):
+    def __init__(self, public_key, node_id):
         genesis_block = Block(0, '', [], 100, 0)  # Starting block
         self.chain = [genesis_block]  # list of blocks
         self.__open_transactions = []  # list of unhandled transactions
-        self.hosting_node = hosting_node_id
+        self.public_key = public_key
         self.__peer_nodes = set()
+        self.node_id = node_id
         self.load_data()
 
     @property
@@ -41,7 +42,7 @@ class Blockchain:
 
     def load_data(self):
         try:
-            with open('blockchain.txt', mode='rb') as f:
+            with open('blockchain-{}.txt'.format(self.node_id), mode='rb') as f:
                 file_content = pickle.loads(f.read())
                 self.chain = file_content['chain']
                 self.__open_transactions = file_content['ot']
@@ -52,7 +53,7 @@ class Blockchain:
     def save_data(self):
         try:
             # Use pickle lib to store data in a binary format
-            with open('blockchain.txt', mode='wb') as file:
+            with open('blockchain-{}.txt'.format(self.node_id), mode='wb') as file:
                 save_data = {
                     'chain': self.__chain,
                     'ot': self.__open_transactions,
@@ -71,9 +72,9 @@ class Blockchain:
         return proof
 
     def get_balance(self):
-        if self.hosting_node == None:
+        if self.public_key == None:
             return None
-        participant = self.hosting_node
+        participant = self.public_key
         # list comprehension
         # get the list with amount of coins sent
         tx_sender = [[tx.amount for tx in block.transactions if participant == tx.sender]
@@ -101,7 +102,7 @@ class Blockchain:
         return self.__chain[-1]
 
     def add_transaction(self, recipient, sender, signature, amount=1.0):
-        if self.hosting_node == None:
+        if self.public_key == None:
             return False
 
         transaction = Transaction(sender, recipient, signature, amount)
@@ -113,13 +114,13 @@ class Blockchain:
         return False
 
     def mine_block(self):
-        if self.hosting_node == None:
+        if self.public_key == None:
             return None
         last_block = self.__chain[-1]  # get last_block from blockchain list
         hashed_block = hash_block(last_block)
         proof = self.proof_of_work()
         reward_tx = Transaction(
-            'MINING', self.hosting_node, '',  MINING_REWARD)
+            'MINING', self.public_key, '',  MINING_REWARD)
 
         # Copy trans. instead of mutating original open_tx.
         copied_open_transactions = self.__open_transactions[:]
