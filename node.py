@@ -214,6 +214,41 @@ def get_nodes():
     return (jsonify(response), 200)
 
 
+@app.route('/broadcast', methods=['POST'])
+def broadcast_transactions():
+    params = request.get_json()
+    if not params:
+        response = {
+            'message': 'No data provided'
+        }
+        return (jsonify(response), 400)
+    required_keys = ['sender', 'recipient', 'amount', 'signature']
+    if not all(key in params for key in required_keys):
+        response = {
+            'message': 'Required data is missing!'
+        }
+        return (jsonify(response), 400)
+
+    success = blockchain.add_transaction(
+        params['recipient'], params['sender'], params['signature'], params['amount'], is_receiving=True)
+    if success:
+        response = {
+            'message': 'Tx was added to open_transactions',
+            'transaction': {
+                'sender': params['sender'],
+                'recipient': params['recipient'],
+                'amount': params['amount'],
+                'signature':  params['signature']
+            }
+        }
+        return (jsonify(response), 201)
+    else:
+        response = {
+            'message': 'Tx creation failed :('
+        }
+        return (jsonify(response), 500)
+
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
