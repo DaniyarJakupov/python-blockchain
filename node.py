@@ -147,6 +147,10 @@ def get_chain():
 
 @app.route('/mine', methods=['POST'])
 def mine():
+    if blockchain.resolve_conflicts == True:
+        response = {"message": "Resolve blockchain conflicts!"}
+        return (jsonify(response), 409)
+
     block = blockchain.mine_block()
     (_, _, balance) = blockchain.get_balance()
     if block != None:
@@ -244,7 +248,7 @@ def broadcast_transactions():
         return (jsonify(response), 201)
     else:
         response = {
-            'message': 'Tx creation failed :('
+            'message': 'Tx creation failed'
         }
         return (jsonify(response), 500)
 
@@ -274,10 +278,13 @@ def broadcast_block():
             response = {
                 'message': 'Block is invalid!'
             }
-            return (jsonify(response), 500)
+            return (jsonify(response), 409)  # 409 -> data invalid
 
     elif block['index'] > blockchain.chain[-1].index + 1:
-        pass
+        # local needs to be fixed
+        response = {'message': 'Blockchain is different from local version'}
+        blockchain.resolve_conflicts = True
+        return (jsonify(response), 200)
     else:
         response = {
             'message': 'Block not added, your blockchain is not up-to-date'
