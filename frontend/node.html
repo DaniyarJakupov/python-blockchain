@@ -189,6 +189,13 @@
             >
               Mine Coins
             </button>
+            <button
+              v-if="view === 'chain' && wallet"
+              class="btn btn-warning"
+              @click="onResolve"
+            >
+              Resolve Conflicts
+            </button>
           </div>
         </div>
         <div class="row">
@@ -374,6 +381,15 @@
               this.dataLoading = false;
               this.error = null;
             }
+          },
+
+          onResolve: async function() {
+            let { data } = await axios.post("/resolve").catch(e => {
+              this.error = e.response.data.message;
+              this.success = null;
+            });
+            this.error = null;
+            this.success = data.message;
           }
         }
       });

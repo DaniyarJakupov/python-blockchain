@@ -292,6 +292,16 @@ def broadcast_block():
         return (jsonify(response), 409)  # 409 -> data invalid
 
 
+@app.route('/resolve', methods=['POST'])
+def resolve_conflicts():
+    replaced = blockchain.resolve()
+    if replaced:
+        response = {'message': 'Conflicts resolved, blockchain was replaced!'}
+    else:
+        response = {'message': 'Conflicts resolved, blockchain was kept!'}
+    return (jsonify(response), 200)
+
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
